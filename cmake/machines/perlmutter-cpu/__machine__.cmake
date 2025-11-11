@@ -1,0 +1,2 @@
+set(FQDN_REGEX ".*chn|nid.*")
+set(ENV_VALUES "NERSC_HOST:perlmutter,MPICH_GPU_SUPPORT_ENABLED:0")

@@ -1,0 +1,9 @@
+build
+output
+.DS_Store
+.venv*
+venv*
+doc/_build
+*.swp
+doc/doxygen_output
+doc/api

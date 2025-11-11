@@ -1,0 +1,13 @@
+#!/bin/bash
+
+export TRITON_BACKEND=OPENMP
+export TRITON_ARCH=NATIVE
+export TRITON_COMPILER=CC
+export TRITON_COMPILER_FLAGS="-fopenmp"
+export TRITON_LINKER_FLAGS="-fopenmp"
+export TRITON_DEBUG=OFF
+export TRITON_RUN_COMMAND="srun -n 4"
+
+export MPICH_GPU_SUPPORT_ENABLED=0
+export CRAYPE_LINK_TYPE=dynamic
+export OMP_NUM_THREADS=2

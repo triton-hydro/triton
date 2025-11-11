@@ -1,0 +1,20 @@
+# Doxyfile for My C++ Project
+PROJECT_NAME           = "TRITON"
+PROJECT_BRIEF          = "Two-dimensional Runoff Inundation Toolkit for Operational Needs."
+PROJECT_LOGO           = # Optional: path to a logo image
+OUTPUT_DIRECTORY       = doxygen_output # Relative to docs/
+GENERATE_XML           = YES
+GENERATE_HTML          = NO # Sphinx will generate HTML, not Doxygen
+INPUT                  = ../src # Path to your C++ source, relative to docs/
+FILE_PATTERN           = *.h *.hpp *.c *.cpp
+RECURSIVE              = YES
+EXTRACT_ALL            = YES
+EXTRACT_STATIC         = YES
+EXTRACT_PRIVATE        = YES
+EXTRACT_LOCAL_CLASSES  = YES
+SORT_MEMBER_DOCS       = YES
+SHORT_NAMES            = NO
+INLINE_SOURCES         = YES
+FULL_PATH_NAMES        = YES
+SOURCE_BROWSER         = YES
+# ... other Doxygen options as needed ...

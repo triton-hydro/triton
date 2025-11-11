@@ -1,0 +1,5 @@
+# rank_beg , rank_end , arguments_list , stdout_filename , stderr_filename
+ensembles: [
+             [ 0   , 3  , ["./paraboloid_ens1.cfg"] , "ens1.out" , "ens1.err" ] , 
+             [ 4   , 7  , ["./paraboloid_ens2.cfg"] , "ens2.out" , "ens2.err" ] ,
+           ]
