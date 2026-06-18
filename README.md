@@ -11,7 +11,7 @@ for execution across multiple nodes.
 ## About this repository
 
 This is the **official public release repository** for TRITON. The most recent
-release published here is **2.0.0**.
+release published here is **2.1.0**.
 
 TRITON is developed at <https://code.ornl.gov/hydro/triton>.
 That repository is authoritative: it holds the development history, the issue
@@ -41,7 +41,7 @@ Two consequences are worth stating plainly.
 Every release is listed on the
 [Releases page](https://github.com/triton-hydro/triton/releases). Download the asset named
 **`triton-<version>.tar.gz`** — for this version, that is
-`triton-2.0.0.tar.gz`.
+`triton-2.1.0.tar.gz`.
 
 **Do not use the "Source code (zip)" or "Source code (tar.gz)" links that GitHub
 generates automatically.** TRITON depends on two git submodules, Kokkos and
@@ -54,11 +54,11 @@ builds with no further downloads.
 Every tarball is published with a matching `.sha256` file:
 
 ```bash
-curl -LO https://github.com/triton-hydro/triton/releases/download/2.0.0/triton-2.0.0.tar.gz
-curl -LO https://github.com/triton-hydro/triton/releases/download/2.0.0/triton-2.0.0.tar.gz.sha256
-sha256sum -c triton-2.0.0.tar.gz.sha256
-tar xzf triton-2.0.0.tar.gz
-cd triton-2.0.0
+curl -LO https://github.com/triton-hydro/triton/releases/download/2.1.0/triton-2.1.0.tar.gz
+curl -LO https://github.com/triton-hydro/triton/releases/download/2.1.0/triton-2.1.0.tar.gz.sha256
+sha256sum -c triton-2.1.0.tar.gz.sha256
+tar xzf triton-2.1.0.tar.gz
+cd triton-2.1.0
 ```
 
 ### Clone this repository
@@ -68,7 +68,7 @@ Cloning works too, as long as the submodules come with it:
 ```bash
 git clone --recursive https://github.com/triton-hydro/triton.git
 cd triton
-git checkout 2.0.0
+git checkout 2.1.0
 ```
 
 If you have already cloned without `--recursive`:
@@ -99,7 +99,7 @@ to choose. The documentation sources under `doc/` build with Sphinx.
 - [CHANGELOG.md](CHANGELOG.md) — release notes for every version published here
 - [Releases page](https://github.com/triton-hydro/triton/releases) —
   tarballs and their checksums
-- Tags carry the upstream version number exactly (`2.0.0`, not `v2.0.0`)
+- Tags carry the upstream version number exactly (`2.1.0`, not `v2.1.0`)
   and are never moved or deleted once published
 
 ## Issues, questions, and contributions

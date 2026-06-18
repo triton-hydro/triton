@@ -6,10 +6,7 @@ module load libfabric/2.3.1
 module load craype-network-ofi
 module load Core/25.04
 module load DefApps
-module load nvidia/25.9
-module load craype/2.7.36
-module load cray-mpich/9.1.0
-module load PrgEnv-nvidia/8.7.0
+module load PrgEnv-gnu
 module load cudatoolkit/25.9_13.0
 module load craype-accel-nvidia90
 module load cray-libsci/26.03.0

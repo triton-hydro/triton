@@ -227,11 +227,8 @@ namespace ConfigUtils
 
 				if (kv.size() > 2)
 				{
-					std::vector<std::string>::iterator it = kv.begin() + 2;
-					for (; it != kv.end(); it++)
-					{
-						value += (*it);
-					}
+					for (const auto& s : kv | std::views::drop(2))
+						value += s;
 				}
 				arglist.insert(std::pair<std::string, std::string>(key, value));
 			}

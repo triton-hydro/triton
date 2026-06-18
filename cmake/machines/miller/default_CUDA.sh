@@ -1,1 +1,1 @@
-nvidia_CUDA.sh
+cray_CUDA.sh

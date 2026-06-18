@@ -1,1 +1,1 @@
-nvidia_CUDA.sh
+gnu_CUDA.sh

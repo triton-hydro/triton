@@ -174,6 +174,7 @@ Project Website
    docguide
    docker_build
    machine_file
+   cpp20_idioms
 
 .. toctree::
    :maxdepth: 1

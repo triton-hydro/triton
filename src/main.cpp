@@ -40,8 +40,6 @@
 #include "mpi.h"
 #include "Ensify.h"
 
-using namespace std;
-
 #include "constants.h"
 #include "supertimer.h"
 #include "string_utils.h"

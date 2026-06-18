@@ -22,6 +22,7 @@
 #include "matrix.h"
 #include "constants.h"
 #include "Ensify.h"
+#include <vector>
 
 namespace MpiUtils
 {
@@ -97,18 +98,18 @@ namespace MpiUtils
 *  @param size Total number of MPI processes
 *  @param type Data type (Only halo data/Full domain data)
 */
-	template<typename T>
+	template<Matrix::Arithmetic T>
 	void exchange(T* local, int lrows, int lcols, int rank, int size, int type);
-	
-	
+
+
 /** @brief It performs initial domain scattering and partitioning between multiple MPI processes.
 *
 *  @param global Data of the whole domain
 *  @param pd Partitioning information
 *  @param rank Current MPI process id
 *  @return Subdomain data
-*/	
-	template<typename T>
+*/
+	template<Matrix::Arithmetic T>
 	Matrix::matrix<T> scatter_exchange(T* global, partition_data_t pd, int rank);
 	
 	
@@ -122,7 +123,7 @@ namespace MpiUtils
 	Matrix::matrix<int> scatter_exchange_int(int* global, partition_data_t pd, int rank);
 
 
-	template<typename T>
+	template<Matrix::Arithmetic T>
 	void exchange(T* local, int lrows, int lcols, int rank, int size, int type)
 	{
 		int factor = 1;
@@ -185,7 +186,7 @@ namespace MpiUtils
 	}
 
 
-	template<typename T>
+	template<Matrix::Arithmetic T>
 	Matrix::matrix<T> scatter_exchange(T* global, partition_data_t pd, int rank)
 	{
 		int
@@ -195,7 +196,8 @@ namespace MpiUtils
 		
 		Matrix::matrix<T> sub_grid(lrows, lcols);
 		sub_grid.zero_fill();
-		MPI_Request send_request[pd.size-1], recv_request;
+		std::vector<MPI_Request> send_request(pd.size-1);
+		MPI_Request recv_request;
 
 		if (rank == 0)
 		{
@@ -221,7 +223,7 @@ namespace MpiUtils
 
 		if (rank == 0)
 		{
-			MPI_Waitall(pd.size-1, send_request,  MPI_STATUS_IGNORE);
+			MPI_Waitall(pd.size-1, send_request.data(),  MPI_STATUS_IGNORE);
 		}else{
 			MPI_Wait(&recv_request, MPI_STATUS_IGNORE);
 		}
@@ -239,7 +241,8 @@ namespace MpiUtils
 
 		Matrix::matrix<int> sub_grid(lrows, lcols);
 		sub_grid.zero_fill_int();
-		MPI_Request send_request[pd.size-1], recv_request;
+		std::vector<MPI_Request> send_request(pd.size-1);
+		MPI_Request recv_request;
 
 
 		if (rank == 0)
@@ -266,7 +269,7 @@ namespace MpiUtils
 
 		if (rank == 0)
 		{
-			MPI_Waitall(pd.size-1, send_request,  MPI_STATUS_IGNORE);
+			MPI_Waitall(pd.size-1, send_request.data(),  MPI_STATUS_IGNORE);
 		}else{
 			MPI_Wait(&recv_request, MPI_STATUS_IGNORE);
 		}

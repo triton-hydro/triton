@@ -19,6 +19,9 @@
 #ifndef STRING_UTILS_H
 #define STRING_UTILS_H
 
+#include <algorithm>
+#include <ranges>
+
 #include "constants.h"
 
 namespace StringUtils
@@ -124,7 +127,7 @@ namespace StringUtils
 	static inline std::string& ltrim(std::string &s)
 	{
 
-        s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch){ return !std::isspace(ch); }));
+        s.erase(s.begin(), std::ranges::find_if(s, [](unsigned char ch){ return !std::isspace(ch); }));
 		return s;
 	}
 
@@ -162,7 +165,7 @@ namespace StringUtils
 	std::string toupper(const std::string &src)
 	{
 		std::string result;
-		std::transform(src.begin(), src.end(), std::back_inserter(result), up_char);
+		std::ranges::transform(src, std::back_inserter(result), up_char);
 		return result;
 	}
 
@@ -176,7 +179,7 @@ namespace StringUtils
 	std::string tolower(const std::string &src)
 	{
 		std::string result;
-		std::transform(src.begin(), src.end(), std::back_inserter(result), down_char);
+		std::ranges::transform(src, std::back_inserter(result), down_char);
 		return result;
 	}
 
@@ -216,9 +219,9 @@ namespace StringUtils
 	std::vector<int> vecstr_to_vecint(Constants::string_vector vs)
 	{
 		std::vector<int> ret;
-		for (Constants::string_vector::iterator it = vs.begin(); it != vs.end(); ++it)
+		for (const auto& item : vs)
 		{
-			std::istringstream iss(*it);
+			std::istringstream iss(item);
 			int temp;
 			iss >> temp;
 			ret.push_back(temp);
@@ -231,9 +234,9 @@ namespace StringUtils
 	std::vector<T> vecstr_to_vecflt(Constants::string_vector vs)
 	{
 		std::vector<T> ret;
-		for (Constants::string_vector::iterator it = vs.begin(); it != vs.end(); ++it)
+		for (const auto& item : vs)
 		{
-			std::istringstream iss(*it);
+			std::istringstream iss(item);
 			T temp;
 			iss >> temp;
 			ret.push_back(temp);

@@ -63,8 +63,8 @@ produced with `git format-patch`.
 Problems with what this repository *publishes*, as opposed to what TRITON
 *does*, are still reported upstream. Please include:
 
-- the version tag, for example `2.0.0`
-- the asset name, for example `triton-2.0.0.tar.gz`
+- the version tag, for example `2.1.0`
+- the asset name, for example `triton-2.1.0.tar.gz`
 - the checksum you computed and the one published in the matching `.sha256`
   file
 - how you obtained the file (release asset, `git clone`, or the GitHub-generated

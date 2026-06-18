@@ -20,10 +20,11 @@
 #define DEM_UTILS_H
 
 #include "matrix.h"
+#include <concepts>
 
 namespace DemFile
 {
-	template<class T>
+	template<std::floating_point T>
 	class dem_file : public Matrix::matrix<T>	/**< To process and store DEM data. It extends the base Matrix class. */
 	{
 	public:
@@ -31,7 +32,7 @@ namespace DemFile
 /** @brief Constructor. Takes no argument.
 *
 */
-		dem_file<T>() : Matrix::matrix<T>() {}
+		dem_file() : Matrix::matrix<T>() {}
 
 
 /** @brief Constructor. Takes number of rows and columns as argument.
@@ -39,14 +40,14 @@ namespace DemFile
 *  @param rows Number of rows
 *  @param cols Number of columns
 */
-		dem_file<T>(int rows, int cols) : Matrix::matrix<T>(rows, cols) {}
-		
-		
+		dem_file(int rows, int cols) : Matrix::matrix<T>(rows, cols) {}
+
+
 /** @brief Constructor. Takes a Matrix object as argument.
 *
 *  @param m Matrix object
-*/		
-		dem_file<T>(Matrix::matrix<T> const& m) : Matrix::matrix<T>(m) {}
+*/
+		dem_file(Matrix::matrix<T> const& m) : Matrix::matrix<T>(m) {}
 
 
 /** @brief To get number of rows in DEM domain.
@@ -159,11 +160,11 @@ namespace DemFile
 	};
 
 
-	template<typename T>
+	template<std::floating_point T>
 	void dem_file<T>::load_header_from_dem_file_ascii(std::string filename)
 	{
 		std::ifstream ifs(filename.c_str());
-		if (!ifs.good())
+		if (!ifs.good()) [[unlikely]]
 		{
 			std::cerr << ERROR "Error reading file: " << filename << std::endl;
 			exit(EXIT_FAILURE);
@@ -232,11 +233,11 @@ namespace DemFile
 	}
 
 	
-	template<typename T>
+	template<std::floating_point T>
 	void dem_file<T>::load_header_from_dem_file_binary(std::string filename)
 	{
-		std::ifstream ifs(filename.c_str(), ios::binary);
-		if (!ifs.good())
+		std::ifstream ifs(filename.c_str(), std::ios::binary);
+		if (!ifs.good()) [[unlikely]]
 		{
 			std::cerr << ERROR "Error reading file: " << filename << std::endl;
 			exit(EXIT_FAILURE);
@@ -294,84 +295,84 @@ namespace DemFile
 	}
 
 
-	template<typename T>
+	template<std::floating_point T>
 	int dem_file<T>::get_nrows() const
 	{
 		return this->nrows_;
 	}
 
 
-	template<typename T>
+	template<std::floating_point T>
 	int dem_file<T>::get_ncols() const
 	{
 		return this->ncols_;
 	}
 
 
-	template<typename T>
+	template<std::floating_point T>
 	T dem_file<T>::get_cell_size() const
 	{
 		return this->cellsize_;
 	}
 
 
-	template<typename T>
+	template<std::floating_point T>
 	int dem_file<T>::get_no_data_value() const
 	{
 		return this->no_data_value_;
 	}
 
 
-	template<typename T>
+	template<std::floating_point T>
 	T dem_file<T>::get_xll_corner() const
 	{
 		return this->xllcorner_;
 	}
 
 
-	template<typename T>
+	template<std::floating_point T>
 	T dem_file<T>::get_yll_corner() const
 	{
 		return this->yllcorner_;
 	}
 
 
-	template<typename T>
+	template<std::floating_point T>
 	void dem_file<T>::set_nrows(int row)
 	{
 		this->nrows_ = row;
 	}
 
 
-	template<typename T>
+	template<std::floating_point T>
 	void dem_file<T>::set_ncols(int col)
 	{
 		this->ncols_ = col;
 	}
 
 
-	template<typename T>
+	template<std::floating_point T>
 	void dem_file<T>::set_xll_corner(T xll)
 	{
 		this->xllcorner_ = xll;
 	}
 
 
-	template<typename T>
+	template<std::floating_point T>
 	void dem_file<T>::set_yll_corner(T yll)
 	{
 		this->yllcorner_ = yll;
 	}
 
 
-	template<typename T>
+	template<std::floating_point T>
 	void dem_file<T>::set_cell_size(T cell_size)
 	{
 		this->cellsize_ = cell_size;
 	}
 
 
-	template<typename T>
+	template<std::floating_point T>
 	void dem_file<T>::set_no_data_value(int no_data_value)
 	{
 		this->no_data_value_ = no_data_value;

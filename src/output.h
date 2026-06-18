@@ -19,6 +19,8 @@
 #ifndef OUTPUT_H
 #define OUTPUT_H
 
+#include <sstream>
+#include <iomanip>
 #include "constants.h"
 #include "matrix.h"
 
@@ -42,13 +44,13 @@ namespace Output
 /** @brief Constructor.
 *
 */	
-		output<T>() {};
-		
-		
+		output() {};
+
+
 /** @brief Destructor. Releases any allocated memory.
 *
-*/		
-		~output<T>();
+*/
+		~output();
 		
 		
 /** @brief It initializes anything related to outputs in file.
@@ -420,7 +422,7 @@ namespace Output
 			}
 		}
 
-		std::string root_dir(project_dir_ + "/" + output_folder_ + "/");
+		std::string root_dir = project_dir_ + "/" + output_folder_ + "/";
 		DIR* dir;
 		if(root_dir.empty())
 		{
@@ -438,7 +440,7 @@ namespace Output
 		closedir(dir);
 		root_dir.pop_back();
 
-		std::string outdir(project_dir_ + "/" + output_folder_ + "/" + TIME_SERIES_DIR + "/");
+		std::string outdir = project_dir_ + "/" + output_folder_ + "/" + TIME_SERIES_DIR + "/";
 		DIR* dir2;
 		if(outdir.empty())
 		{
@@ -458,7 +460,7 @@ namespace Output
 		if (rank_ == 0 && checkpoint_id == 0)
 		{
 			if (print_option.find("h") != std::string::npos){
-				std::string filedir = outdir + "H" + "_at_Xsec.txt";		
+				std::string filedir = outdir + "H_at_Xsec.txt";
 
 				std::string str = "Time(s)";
 				for (int i = 0; i < num_of_obs_points_global_; i++)
@@ -471,7 +473,7 @@ namespace Output
 				output.close();
 			}
 			if (print_option.find("u") != std::string::npos){
-				std::string filedir = outdir + "QX" + "_at_Xsec.txt";		
+				std::string filedir = outdir + "QX_at_Xsec.txt";
 
 				std::string str = "Time(s)";
 				for (int i = 0; i < num_of_obs_points_global_; i++)
@@ -484,7 +486,7 @@ namespace Output
 				output.close();
 			}
 			if (print_option.find("v") != std::string::npos){
-				std::string filedir = outdir + "QY" + "_at_Xsec.txt";		
+				std::string filedir = outdir + "QY_at_Xsec.txt";
 
 				std::string str = "Time(s)";
 				for (int i = 0; i < num_of_obs_points_global_; i++)
@@ -690,7 +692,11 @@ namespace Output
 		if (rank_ == 0)
 		{
 
-			std::cerr << BLUE << "[" << (print_id) << "]" << RESET " File written at time " << simtime << " seconds. " << std::endl;
+			{
+				std::ostringstream oss;
+				oss << BLUE << "[" << print_id << "]" << RESET << " File written at time " << simtime << " seconds.\n";
+				std::cerr << oss.str();
+			}
 			output_cfg(simtime, print_id, average_dt, it_count);
 			std::ofstream cidfile("cid");
 			if (cidfile.is_open())
@@ -702,79 +708,6 @@ namespace Output
 
 	}
 	
-
-	template<typename T>
-	void output<T>::write_output_ascii_sequential(Matrix::matrix<T>& arr, std::string what_mat, int print_id)
-	{
-		if(rank_ == 0)
-		{
-			std::string root_dir(project_dir_ + "/" + output_folder_ + "/");
-
-			DIR* dir;
-			if(root_dir.empty())
-			{
-				dir = opendir(".");
-			}
-			else
-			{
-				dir = opendir(root_dir.c_str());
-			}
-			if (!dir)
-			{
-				mkdir(root_dir.c_str(), S_IRWXU);
-			}
-			else
-			closedir(dir);
-			root_dir.pop_back();
-
-			std::string filepath = get_mat_path(what_mat, root_dir, ASCII_DIR, print_id, ".out");
-			std::string file_dir(project_dir_ + "/" + output_folder_ + "/" + ASCII_DIR + "/");
-
-			DIR* dir2;
-			if(file_dir.empty())
-			{
-				dir2 = opendir(".");
-			}
-			else
-			{
-				dir2 = opendir(file_dir.c_str());
-			}
-			if (!dir2)
-			{
-				mkdir(file_dir.c_str(), S_IRWXU);
-			}
-			else
-			closedir(dir2);
-
-			std::ofstream mat;
-			mat.precision(6);
-			mat.open((filepath).c_str());
-			mat << std::fixed;
-			
-			int off = GHOST_CELL_PADDING;
-			int total_cols = cols_;
-			int total_rows = total_data_size/ total_cols;
-			for(int i=off; i<total_rows-off; i++)
-			{
-				for(int j=off; j<total_cols-off;j++)
-				{
-					mat << total_data_arr[i*(long long)total_cols+j];
-
-					if (j < total_cols - off - 1)
-					{
-						mat << " ";
-					}
-				}
-				mat << std::endl;
-			}
-			mat.close();
-		}
-		if (size_ > 1)
-		{
-			MPI_Barrier(ENSIFY_COMM_WORLD);
-		}
-	}
-
 
 	template<typename T>
 	std::ostream& operator<<(std::ostream& out, Matrix::matrix<T>& M)
@@ -801,518 +734,6 @@ namespace Output
 
 
 	template<typename T>
-	void output<T>::write_output_ascii_parallel(Matrix::matrix<T>& arr, std::string what_mat, int print_id)
-	{
-		std::string root_dir(project_dir_ + "/" + output_folder_ + "/");
-
-		DIR* dir;
-		if(root_dir.empty())
-		{
-			dir = opendir(".");
-		}
-		else
-		{
-			dir = opendir(root_dir.c_str());
-		}
-		if (!dir)
-		{
-			mkdir(root_dir.c_str(), S_IRWXU);
-		}
-		else
-		closedir(dir);
-		
-		root_dir.pop_back();
-
-		std::string filepath = get_mat_path(what_mat, root_dir, ASCII_DIR, print_id, ".out");
-		std::string file_dir(project_dir_ + "/" + output_folder_ + "/" + ASCII_DIR + "/");
-
-		DIR* dir2;
-		if(file_dir.empty())
-		{
-			dir2 = opendir(".");
-		}
-		else
-		{
-			dir2 = opendir(file_dir.c_str());
-		}
-		if (!dir2)
-		{
-			mkdir(file_dir.c_str(), S_IRWXU);
-		}
-		else
-		closedir(dir2);
-
-		std::ofstream mat;
-		mat.precision(6);
-		mat.open((filepath).c_str());
-		mat << std::fixed << arr;
-		mat.close();
-
-
-	}
-
-
-	template<typename T>
-	void output<T>::write_output_binary_sequential(Matrix::matrix<T>& arr, std::string what_mat, int print_id)
-	{
-		if (rank_ == 0)
-		{
-			MPI_Gatherv(arr.get_address_at(0, 0), cur_proc_data_size, MPI_DATA_TYPE, total_data_arr, recvcounts, displs, MPI_DATA_TYPE, 0, ENSIFY_COMM_WORLD);
-		}
-		else
-		{
-			MPI_Gatherv(arr.get_address_at(GHOST_CELL_PADDING, 0), cur_proc_data_size, MPI_DATA_TYPE, total_data_arr, recvcounts, displs, MPI_DATA_TYPE, 0, ENSIFY_COMM_WORLD);
-		}
-
-		if (rank_ == 0)
-		{
-			std::string root_dir(project_dir_ + "/" + output_folder_ + "/");
-
-			DIR* dir;
-			if(root_dir.empty())
-			{
-				dir = opendir(".");
-			}
-			else
-			{
-				dir = opendir(root_dir.c_str());
-			}
-			if (!dir)
-			{
-				mkdir(root_dir.c_str(), S_IRWXU);
-			}
-			else
-			closedir(dir);
-
-			root_dir.pop_back();
-
-
-			std::string filepath = get_mat_path(what_mat, root_dir, BIN_DIR, print_id, ".out");
-			std::string file_dir(project_dir_ + "/" + output_folder_ + "/" + BIN_DIR + "/");
-
-			DIR* dir2;
-			if(file_dir.empty())
-			{
-				dir2 = opendir(".");
-			}
-			else
-			{
-				dir2 = opendir(file_dir.c_str());
-			}
-			if (!dir2)
-			{
-				mkdir(file_dir.c_str(), S_IRWXU);
-			}
-			else
-			closedir(dir2);
-
-			std::ofstream mat((filepath).c_str(), std::ios::binary);
-			
-			int total_cols = cols_;
-			int total_rows = total_data_size/ total_cols;
-			int off = GHOST_CELL_PADDING;
-			
-			T put_rows_value = (T)(total_rows - 2 * off);
-			T put_cols_value = (T)(total_cols - 2 * off);
-			
-			mat.write((char*) &put_rows_value, sizeof(T));
-			mat.write((char*) &put_cols_value, sizeof(T));
-			
-			for(int i=off; i<total_rows-off; i++)
-			{
-				mat.write((char*) &total_data_arr[i*(long long)total_cols+off], (total_cols-2*off) * sizeof(T));
-			}
-			mat.close();
-		}
-		if (size_ > 1)
-		{
-			MPI_Barrier(ENSIFY_COMM_WORLD);
-		}
-	}
-
-
-	template<typename T>
-	void output<T>::write_output_binary_parallel(Matrix::matrix<T>& arr, std::string what_mat, int print_id)
-	{
-		std::string root_dir(project_dir_ + "/" + output_folder_ + "/");
-
-		DIR* dir;
-		if(root_dir.empty())
-		{
-			dir = opendir(".");
-		}
-		else
-		{
-			dir = opendir(root_dir.c_str());
-		}
-		if (!dir)
-		{
-			mkdir(root_dir.c_str(), S_IRWXU);
-		}
-		else
-		closedir(dir);
-		root_dir.pop_back();
-
-
-		std::string filepath = get_mat_path(what_mat, root_dir, BIN_DIR, print_id, ".out");
-		std::string file_dir(project_dir_ + "/" + output_folder_ + "/" + BIN_DIR + "/");
-
-		DIR* dir2;
-		if(file_dir.empty())
-		{
-			dir2 = opendir(".");
-		}
-		else
-		{
-			dir2 = opendir(file_dir.c_str());
-		}
-		if (!dir2)
-		{
-			mkdir(file_dir.c_str(), S_IRWXU);
-		}
-		else
-		closedir(dir2);
-
-		std::ofstream mat((filepath).c_str(), std::ios::binary);
-		int off = GHOST_CELL_PADDING;
-		
-		T put_rows_value = (T)(rows_ - 2 * off);
-		T put_cols_value = (T)(cols_ - 2 * off);
-		
-		mat.write((char*) &put_rows_value, sizeof(T));
-		mat.write((char*) &put_cols_value, sizeof(T));
-		
-		for(int i=off; i<rows_-off; i++)
-		{
-			mat.write((char*)arr.get_address_at(i,off), (cols_-2*off) * sizeof(T));
-		}
-		
-		mat.close();
-	}
-
-
-#ifdef TRITON_GDAL
-	template<typename T>
-	void output<T>::write_output_geotiff_sequential(Matrix::matrix<T>& arr, std::string what_mat, int print_id, std::string projection)
-	{
-		if (rank_ == 0)
-		{
-			MPI_Gatherv(arr.get_address_at(0, 0), cur_proc_data_size, MPI_DATA_TYPE, total_data_arr, recvcounts, displs, MPI_DATA_TYPE, 0, ENSIFY_COMM_WORLD);
-		}
-		else
-		{
-			MPI_Gatherv(arr.get_address_at(GHOST_CELL_PADDING, 0), cur_proc_data_size, MPI_DATA_TYPE, total_data_arr, recvcounts, displs, MPI_DATA_TYPE, 0, ENSIFY_COMM_WORLD);
-		}
-
-		if (rank_ == 0)
-		{
-			std::string root_dir(project_dir_ + "/" + output_folder_ + "/");
-
-			DIR* dir;
-			if(root_dir.empty())
-			{
-				dir = opendir(".");
-			}
-			else
-			{
-				dir = opendir(root_dir.c_str());
-			}
-			if (!dir)
-			{
-				mkdir(root_dir.c_str(), S_IRWXU);
-			}
-			else
-			closedir(dir);
-
-			root_dir.pop_back();
-
-
-			std::string filepath = get_mat_path(what_mat, root_dir, std::string(GEO_DIR), print_id, ".tif");
-			std::string file_dir(project_dir_ + "/" + output_folder_ + "/" + GEO_DIR + "/");
-
-			DIR* dir2;
-			if(file_dir.empty())
-			{
-				dir2 = opendir(".");
-			}
-			else
-			{
-				dir2 = opendir(file_dir.c_str());
-			}
-			if (!dir2)
-			{
-				mkdir(file_dir.c_str(), S_IRWXU);
-			}
-			else
-			closedir(dir2);
-
-			// Initialize GDAL
-			GDALAllRegister();
-
-			int total_cols = cols_;
-			int total_rows = total_data_size / total_cols;
-			int off = GHOST_CELL_PADDING;
-
-			int raster_rows = total_rows - 2 * off;
-			int raster_cols = total_cols - 2 * off;
-
-			GDALDriver* poDriver = GetGDALDriverManager()->GetDriverByName("GTiff");
-			if (poDriver == nullptr)
-			{
-				std::cerr << "Unable to obtain GeoTIFF driver" << std::endl;
-				return;
-			}
-
-			GDALDataset* poDataset = poDriver->Create(filepath.c_str(), raster_cols, raster_rows, 1, GDT_Float32, nullptr);
-			if (poDataset == nullptr)
-			{
-				std::cerr << "Error creating the GeoTIFF file in " << filepath << std::endl;
-				return;
-			}
-
-			// Geo-referenced transformation. GeoTiff uses top left corner as origin
-			// T adfGeoTransform[6] = { xOrigin, pixelWidth, xRotation, yOrigin, yRotation, pixelHeight };
-			T yll = yll_;
-			T xll = xll_;
-			T pixel_size = cellsize_;
-			T y_ul = yll + raster_rows * pixel_size; // Upper left corner y coordinate
-			// Convert to double for GDAL  
-			double adfGeoTransform[6] = {   
-				static_cast<double>(xll),   
-				static_cast<double>(pixel_size),   
-				0.0,   
-				static_cast<double>(y_ul),   
-				0.0,   
-				static_cast<double>(-pixel_size)   
-			};  
-		poDataset->SetGeoTransform(adfGeoTransform);
-
-			// Assign coordinate system
-			OGRSpatialReference oSRS;
-			oSRS.SetFromUserInput(projection.c_str()); // Pass projection string from user #edited SG 
-			char* pszSRSWKT = nullptr;
-			oSRS.exportToWkt(&pszSRSWKT);
-			poDataset->SetProjection(pszSRSWKT);
-			CPLFree(pszSRSWKT);
-
-			GDALRasterBand* poBand = poDataset->GetRasterBand(1);
-
-			for (int i = 0; i < raster_rows; i++)
-			{
-				float *pafWriteline = (float *)CPLMalloc(sizeof(float) * raster_cols);
-				for (int j = 0; j < raster_cols; j++)
-				{
-					pafWriteline[j] = total_data_arr[(i + off) * (long long)total_cols + j + off];
-				}
-				CPLErr err = poBand->RasterIO(GF_Write, 0, i, raster_cols, 1, pafWriteline, raster_cols, 1, GDT_Float32, 0, 0);
-				if (err != CE_None) 
-				{
-					std::cerr << "Error writing to raster in row " << i << std::endl;
-				}
-				CPLFree(pafWriteline);
-			}
-		
-			GDALClose(poDataset);
-		}
-
-		if (size_ > 1)
-		{
-			MPI_Barrier(ENSIFY_COMM_WORLD);
-		}
-	}
-
-
-	template<typename T>
-	void output<T>::write_output_geotiff_parallel(Matrix::matrix<T>& arr, std::string what_mat, int print_id, std::string projection)
-	{
-		std::string root_dir(project_dir_ + "/" + output_folder_ + "/");
-
-		DIR* dir;
-		if(root_dir.empty())
-		{
-			dir = opendir(".");
-		}
-		else
-		{
-			dir = opendir(root_dir.c_str());
-		}
-		if (!dir)
-		{
-			mkdir(root_dir.c_str(), S_IRWXU);
-		}
-		else
-		closedir(dir);
-		root_dir.pop_back();
-
-
-		std::string filepath = get_mat_path(what_mat, root_dir, GEO_DIR, print_id, ".tif");
-		std::string file_dir(project_dir_ + "/" + output_folder_ + "/" + GEO_DIR + "/");
-
-		DIR* dir2;
-		if(file_dir.empty())
-		{
-			dir2 = opendir(".");
-		}
-		else
-		{
-			dir2 = opendir(file_dir.c_str());
-		}
-		if (!dir2)
-		{
-			mkdir(file_dir.c_str(), S_IRWXU);
-		}
-		else
-		closedir(dir2);
-
-		// Initialize GDAL
-		GDALAllRegister();
-
-		int off = GHOST_CELL_PADDING;
-		int raster_rows = rows_ - 2 * off; // number of local rows without ghost cells for each subdomain
-		int raster_cols = cols_ - 2 * off;
-
-		// Gather number of rows from all processes to calculate y_ul correctly
-		std::vector<int> all_rows(size_);
-		MPI_Allgather(&raster_rows, 1, MPI_INT, all_rows.data(), 1, MPI_INT, ENSIFY_COMM_WORLD);
-		int rows_below = 0;
-		for (int r = rank_; r < size_; ++r) {
-			rows_below += all_rows[r];
-		}
-		
-		GDALDriver* poDriver = GetGDALDriverManager()->GetDriverByName("GTiff");
-		if (poDriver == nullptr)
-		{
-			std::cerr << "Unable to obtain GeoTIFF driver" << std::endl;
-			return;
-		}
-
-		GDALDataset* poDataset = poDriver->Create(filepath.c_str(), raster_cols, raster_rows, 1, GDT_Float32, nullptr);
-		if (poDataset == nullptr)
-		{
-			std::cerr << "Error creating GeoTIFF file in" << filepath << std::endl;
-			return;
-		}
-
-
-		// Geo-referenced transformation. GeoTiff uses top left corner as origin
-		// T adfGeoTransform[6] = { xOrigin, pixelWidth, xRotation, yOrigin, yRotation, pixelHeight };
-		T yll = yll_; 
-		T xll = xll_;
-		T pixel_size = cellsize_;
-		T y_ul = yll + rows_below * pixel_size; // Upper left corner y coordinate
-		//T adfGeoTransform[6] = { xll, pixel_size, 0.0, y_ul, 0.0, -pixel_size };
-
-		// Convert to double for GDAL  
-		double adfGeoTransform[6] = {   
-			static_cast<double>(xll),   
-			static_cast<double>(pixel_size),   
-			0.0,   
-			static_cast<double>(y_ul),   
-			0.0,   
-			static_cast<double>(-pixel_size)   
-		};  
-
-		poDataset->SetGeoTransform(adfGeoTransform);
-
-		// Assign coordinate system
-		OGRSpatialReference oSRS;
-		oSRS.SetFromUserInput(projection.c_str()); // Pass projection string from user
-		char* pszSRSWKT = nullptr;
-		oSRS.exportToWkt(&pszSRSWKT);
-		poDataset->SetProjection(pszSRSWKT);
-		CPLFree(pszSRSWKT);
-
-		GDALRasterBand* poBand = poDataset->GetRasterBand(1);
-
-		for (int i = 0; i < raster_rows; i++)
-		{
-			float *pafWriteline = (float *)CPLMalloc(sizeof(float) * raster_cols);
-			for (int j = 0; j < raster_cols; j++)
-			{
-				pafWriteline[j] = *arr.get_address_at(i,j); // This way we access the value of the pointer that points to the memory address (i,j) of the matrix, which is what we are interested in.
-			}
-
-			CPLErr err = poBand->RasterIO(GF_Write, 0, i, raster_cols, 1, pafWriteline, raster_cols, 1, GDT_Float32, 0, 0);
-			if (err != CE_None) 
-			{
-				std::cerr << "Error writing to raster in row " << i << std::endl;
-			}
-			CPLFree(pafWriteline);
-		}
-		
-		GDALClose(poDataset);
-		
-		// Ensure all processes have finished writing before creating VRT
-		MPI_Barrier(ENSIFY_COMM_WORLD);
-		if (rank_ == 0) {
-			write_output_vrt(what_mat, print_id, all_rows, raster_cols, xll_, yll_, cellsize_, projection, file_dir);
-		}
-	}
-
-	template <typename T>
-	void output<T>::write_output_vrt(const std::string &what_mat, int print_id,
-				const std::vector<int> &all_rows, int raster_cols,
-				double xll, double yll, double cellsize,
-				const std::string &projection,
-				const std::string &file_dir)
-	{
-		// Total number of rows in the full domain
-		int total_rows = 0;
-		for (int r : all_rows) total_rows += r;
-
-		// VRT file name
-		std::ostringstream vrt_name;
-		vrt_name << file_dir << what_mat << "_" << std::setw(2) << std::setfill('0') << print_id << ".vrt";
-
-		std::ofstream vrt(vrt_name.str());
-		vrt << "<VRTDataset rasterXSize=\"" << raster_cols
-			<< "\" rasterYSize=\"" << total_rows << "\">\n";
-
-		// GeoTransform
-		double y_ul = yll + total_rows * cellsize;
-		vrt << "  <GeoTransform> "
-			<< xll << ", " << cellsize << ", 0.0, "
-			<< y_ul << ", 0.0, " << -cellsize
-			<< " </GeoTransform>\n";
-
-		// Spatial Reference
-		vrt << "  <SRS>" << projection << "</SRS>\n";
-
-		vrt << "  <VRTRasterBand dataType=\"Float32\" band=\"1\">\n";
-		vrt << "    <ColorInterp>Gray</ColorInterp>\n";
-
-		int offset = 0;
-		for (size_t r = 0; r < all_rows.size(); ++r) {
-			std::ostringstream tif_name;
-			tif_name << what_mat << "_" << std::setw(2) << std::setfill('0') << print_id
-					<< "_" << std::setw(2) << r << ".tif";
-
-			vrt << "    <SimpleSource>\n";
-			vrt << "      <SourceFilename relativeToVRT=\"1\">" << tif_name.str() << "</SourceFilename>\n";
-			vrt << "      <SourceBand>1</SourceBand>\n";
-			vrt << "      <SourceProperties RasterXSize=\"" << raster_cols
-				<< "\" RasterYSize=\"" << all_rows[r]
-				<< "\" DataType=\"Float32\" BlockXSize=\"" << raster_cols
-				<< "\" BlockYSize=\"1\" />\n";
-			vrt << "      <SrcRect xOff=\"0\" yOff=\"0\" xSize=\"" << raster_cols
-				<< "\" ySize=\"" << all_rows[r] << "\" />\n";
-			vrt << "      <DstRect xOff=\"0\" yOff=\"" << offset
-				<< "\" xSize=\"" << raster_cols
-				<< "\" ySize=\"" << all_rows[r] << "\" />\n";
-			vrt << "    </SimpleSource>\n";
-
-			offset += all_rows[r];
-		}
-
-		vrt << "  </VRTRasterBand>\n";
-		vrt << "</VRTDataset>\n";
-		vrt.close();
-	}
-
-
-#endif
-
-	template<typename T>
 	std::string output<T>::get_mat_path(std::string what, std::string root_dir, std::string subdir, int print_id, std::string extension)
 	{
 		std::string format = outfile_pattern_ + extension;
@@ -1331,68 +752,6 @@ namespace Output
 	}
 
 	template<typename T>
-	void output<T>::output_time_series(T *value_obs, std::string what_mat, T simtime)
-	{
-		std::string outdir = project_dir_ + "/" + output_folder_ + "/" + TIME_SERIES_DIR + "/";
-		std::string filedir = outdir + what_mat + "_at_Xsec.txt";		
-
-		T* value_obs_global = NULL;
-
-		if(rank_ == 0){
-			value_obs_global = (T*)malloc(num_of_obs_points_global_ * sizeof(T));
-		}
-
-    	MPI_Gatherv(value_obs, num_of_obs_points_, MPI_DATA_TYPE, value_obs_global, obs_points_per_subdomain, displs_time_series, MPI_DATA_TYPE, 0, ENSIFY_COMM_WORLD);
-
-		if(rank_ == 0){
-			std::string str = std::to_string(simtime);
-			std::ofstream out(filedir, std::ios::app);
-			for (int i = 0; i < num_of_obs_points_global_; i++)
-			{
-				str = str + "," + std::to_string(value_obs_global[time_series_index_relative_[i]]);
-			}	
-			str = str + "\n";
-			out << str;
-			out.close();
-		}
-
-		if(rank_ == 0){
-			free(value_obs_global);
-		}
-
-		if (size_ > 1)
-		{
-			MPI_Barrier(ENSIFY_COMM_WORLD);
-		}
-
-	}
-
-	template<typename T>
-	void output<T>::write_observation_data( T *h_arr_obs, T *qx_arr_obs, T *qy_arr_obs, T simtime, std::string print_option)
-	{
-		if (print_option.find("h") != std::string::npos)
-		{
-			output_time_series(h_arr_obs, "H", simtime);
-		}
-		if (print_option.find("u") != std::string::npos)
-		{
-			output_time_series(qx_arr_obs, "QX", simtime);
-		}
-		if (print_option.find("v") != std::string::npos)
-		{
-			output_time_series(qy_arr_obs, "QY", simtime);
-		}
-		if (rank_ == 0)
-		{
-			std::cerr << BLUE << "[OBS]" << RESET " Observation data written at time " << simtime << " seconds. " << std::endl;
-		}
-
-		
-	}
-
-
-
-	template<typename T>
 	void output<T>::output_cfg(T simtime, int print_id, T average_dt, int it_count)
 	{
 		std::string str2 = cfg_content_;
@@ -1403,12 +762,9 @@ namespace Output
 			if (line.find("sim_start_time=") != std::string::npos)
 			{
 				size_t startPos = str2.find("sim_start_time=");
-				std::ostringstream streamObj;
-				streamObj << std::fixed;
-				streamObj << std::setprecision(std::numeric_limits<T>::max_digits10);
-				streamObj << simtime;
-				std::string strObj = streamObj.str();
-
+				std::ostringstream strOss;
+				strOss << std::fixed << std::setprecision(std::numeric_limits<T>::max_digits10) << simtime;
+				std::string strObj = strOss.str();
 				str2.replace(startPos, line.length(), "sim_start_time=" + strObj);
 			}
 			else if (line.find("checkpoint_id=") != std::string::npos)
@@ -1419,12 +775,9 @@ namespace Output
 			else if (line.find("time_step=") != std::string::npos)
 			{
 				size_t startPos = str2.find("time_step=");
-				std::ostringstream streamObj;
-				streamObj << std::fixed;
-				streamObj << std::setprecision(std::numeric_limits<T>::max_digits10);
-				streamObj << average_dt;
-				std::string strObj = streamObj.str();
-
+				std::ostringstream strOss;
+				strOss << std::fixed << std::setprecision(std::numeric_limits<T>::max_digits10) << average_dt;
+				std::string strObj = strOss.str();
 				str2.replace(startPos, line.length(), "time_step=" + strObj);
 			}
 			else if (line.find("it_count=") != std::string::npos)
@@ -1519,12 +872,12 @@ namespace Output
 				else
 				closedir(dir);
 
-				filedir = outdir + "performance" +std::to_string(print_id) + ".txt";
+				filedir = outdir + "performance" + std::to_string(print_id) + ".txt";
 
 			}else{
 				//the final state
 				std::string outdir = project_dir_ + "/" + output_folder_ + "/";
-				filedir = outdir + "performance.txt";	
+				filedir = outdir + "performance.txt";
 			}
 			std::ofstream output(filedir);
 			output << "%Rank, Compute, MPI, IO, Resize, Other, Simulation, Init, Total" << std::endl;
@@ -1593,5 +946,10 @@ namespace Output
 
 	}
 }
+
+#include "output_ascii.h"
+#include "output_binary.h"
+#include "output_geotiff.h"
+#include "output_timeseries.h"
 
 #endif

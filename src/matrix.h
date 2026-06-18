@@ -20,10 +20,16 @@
 #define MATRIX_H
 
 #include "string_utils.h"
+#include <concepts>
+#include <span>
+#include <cstddef>
 
 namespace Matrix
 {
-	template<class T>
+	template<typename T>
+	concept Arithmetic = std::floating_point<T> || std::integral<T>;
+
+	template<Arithmetic T>
 	class matrix	/**< Matrix class to process 2D grid data structure. */
 	{
 
@@ -32,37 +38,37 @@ namespace Matrix
 /** @brief Constructor.
 *
 */	
-		matrix<T>();
-		
-		
+		matrix();
+
+
 /** @brief Constructor. Creates a matrix of given size.
 *
 *  @param rows Number of rows
 *  @param cols Number of columns
 */
-		matrix<T>(int rows, int cols);
-		
-		
+		matrix(int rows, int cols);
+
+
 /** @brief Constructor. Creates a matrix of given size and 2D array.
 *
 *  @param rows Number of rows
 *  @param cols Number of columns
 *  @param arr 2d Array
-*/		
-		matrix<T>(int rows, int cols, T** arr);
-		
-		
+*/
+		matrix(int rows, int cols, T** arr);
+
+
 /** @brief Constructor. Creates a matrix from another matrix.
 *
 *  @param m Given matrix
 */
-		matrix<T>(matrix<T> const& m);
+		matrix(matrix<T> const& m);
 
 
 /** @brief Destruction. Releases allocated memory.
 *
 */
-		~matrix<T>();
+		~matrix();
 
 
 /** @brief Operator to create matrix by address and given size.
@@ -140,8 +146,27 @@ namespace Matrix
 /** @brief Get data from the matrix.
 *
 *  @return Pointer of array
-*/	
+*/
 		T* get_data() const;
+
+
+/** @brief Get a std::span view over the entire flat data buffer.
+*
+*  @return span covering all rows * cols elements
+*/
+		std::span<T> data_span()
+		{
+			return {this->data_, static_cast<std::size_t>(this->rows_) * static_cast<std::size_t>(this->cols_)};
+		}
+
+/** @brief Get a const std::span view over the entire flat data buffer.
+*
+*  @return const span covering all rows * cols elements
+*/
+		std::span<const T> data_span() const
+		{
+			return {this->data_, static_cast<std::size_t>(this->rows_) * static_cast<std::size_t>(this->cols_)};
+		}
 		
 		
 /** @brief Get beginning address of data.
@@ -387,7 +412,7 @@ namespace Matrix
 	};
 
 
-	template<class T>
+	template<Arithmetic T>
 	matrix<T>::matrix()
 	{
 		this->rows_ = 0;
@@ -396,7 +421,7 @@ namespace Matrix
 	}
 	
 
-	template<class T>
+	template<Arithmetic T>
 	matrix<T>::matrix(int rows, int cols) : rows_(rows), cols_(cols)
 	{
 		if (rows == 0 || cols == 0)
@@ -409,7 +434,7 @@ namespace Matrix
 	}
 
 
-	template<class T>
+	template<Arithmetic T>
 	matrix<T>::matrix(int rows, int cols, T** arr)
 	{
 		if (rows == 0 || cols == 0)
@@ -432,7 +457,7 @@ namespace Matrix
 	}
 
 
-	template<class T>
+	template<Arithmetic T>
 	matrix<T>::matrix(matrix<T> const& m)
 	{
 		T* data = m.get_data();
@@ -448,7 +473,7 @@ namespace Matrix
 	}
 
 
-	template<class T>
+	template<Arithmetic T>
 	matrix<T>::~matrix()
 	{
 		if (this->data_ != NULL)
@@ -456,7 +481,7 @@ namespace Matrix
 	}
 
 
-	template<typename T>
+	template<Arithmetic T>
 	T& matrix<T>::operator()(int row, int col)
 	{
 		if (row >= this->rows_ || col >= this->cols_)
@@ -470,7 +495,7 @@ namespace Matrix
 	}
 
 
-	template<typename T>
+	template<Arithmetic T>
 	T matrix<T>::operator()(int row, int col) const
 	{
 		if (row >= this->rows_ || col >= this->cols_)
@@ -483,7 +508,7 @@ namespace Matrix
 	}
 
 
-	template<typename T>
+	template<Arithmetic T>
 	matrix<T>& matrix<T>::operator*=(T value)
 	{
 		for (int i = 0; i < this->rows_; i++)
@@ -498,7 +523,7 @@ namespace Matrix
 	}
 
 
-	template<typename T>
+	template<Arithmetic T>
 	matrix<T>& matrix<T>::operator*(T value)
 	{
 		for (int i = 0; i < this->rows_; i++)
@@ -513,7 +538,7 @@ namespace Matrix
 	}
 
 
-	template<typename T>
+	template<Arithmetic T>
 	matrix<T>& matrix<T>::operator*(matrix const& m)
 	{
 		if (m.get_num_rows() != this->cols_)
@@ -545,7 +570,7 @@ namespace Matrix
 	}
 
 
-	template<typename T>
+	template<Arithmetic T>
 	matrix<T>& matrix<T>::operator+(matrix const& m)
 	{
 		if (m.get_num_rows() != this->rows_ || m.get_num_cols() != this->cols_)
@@ -569,7 +594,7 @@ namespace Matrix
 	}
 
 
-	template<typename T>
+	template<Arithmetic T>
 	matrix<T>& matrix<T>::operator+=(matrix const& m)
 	{
 		for (int i = 0; i < this->rows_; i++)
@@ -584,7 +609,7 @@ namespace Matrix
 	}
 
 
-	template<typename T>
+	template<Arithmetic T>
 	matrix<T>& matrix<T>::operator+=(T value)
 	{
 		for (int i = 0; i < this->rows_; i++)
@@ -599,7 +624,7 @@ namespace Matrix
 	}
 
 
-	template<typename T>
+	template<Arithmetic T>
 	matrix<T>& matrix<T>::operator=(matrix<T> m)
 	{
 		if (this->rows_ != m.get_num_rows() || this->cols_ != m.get_num_cols())
@@ -621,63 +646,63 @@ namespace Matrix
 	}
 
 
-	template<typename T>
+	template<Arithmetic T>
 	T* matrix<T>::begin()
 	{
 		return &(this->data_[0]);
 	}
 
 
-	template<typename T>
+	template<Arithmetic T>
 	T* matrix<T>::get_address_at(int row, int col)
 	{
 		return &(this->data_[(long long) this->cols_ * row + col]);
 	}
 
 
-	template<typename T>
+	template<Arithmetic T>
 	T* matrix<T>::get_data() const
 	{
 		return this->data_;
 	}
 
 
-	template<typename T>
+	template<Arithmetic T>
 	int matrix<T>::get_num_rows() const
 	{
 		return this->rows_;
 	}
 
 
-	template<typename T>
+	template<Arithmetic T>
 	int matrix<T>::get_num_cols() const
 	{
 		return this->cols_;
 	}
 
 
-	template<typename T>
+	template<Arithmetic T>
 	int matrix<T>::get_ghost_nrows() const
 	{
 		return this->ghost_nrows_;
 	}
 
 
-	template<typename T>
+	template<Arithmetic T>
 	int matrix<T>::get_ghost_ncols() const
 	{
 		return this->ghost_ncols_;
 	}
 
 
-	template<typename T>
+	template<Arithmetic T>
 	void matrix<T>::set_size(int rows, int cols)
 	{
 		this->resize(rows, cols);
 	}
 
 
-	template<typename T>
+	template<Arithmetic T>
 	void matrix<T>::resize(int rows, int cols)
 	{
 		if (this->data_ != NULL)
@@ -689,7 +714,7 @@ namespace Matrix
 	}
 
 
-	template<typename T>
+	template<Arithmetic T>
 	void matrix<T>::set_value(int index, T value)
 	{
 		if (index >= 0 && index < this->rows_ * (long long)this->cols_)
@@ -704,21 +729,21 @@ namespace Matrix
 	}
 
 
-	template<typename T>
+	template<Arithmetic T>
 	void matrix<T>::set_value(int row, int col, T value)
 	{
 		this->set_value(((long long)this->cols_ * row + col), value);
 	}
 
 
-	template<typename T>
+	template<Arithmetic T>
 	void matrix<T>::set_value(std::pair<int, int> cell, T value)
 	{
 		this->set_value(((long long) this->cols_ * cell.first + cell.second), value);
 	}
 
 
-	template<typename T>
+	template<Arithmetic T>
 	T matrix<T>::get_value(int index)
 	{
 		if (this->data_[index] != this->data_[index])
@@ -730,7 +755,7 @@ namespace Matrix
 	}
 
 
-	template<typename T>
+	template<Arithmetic T>
 	T matrix<T>::get_value(int row, int col)
 	{
 		if (!is_inbounds(row, col))
@@ -743,14 +768,14 @@ namespace Matrix
 	}
 
 
-	template<typename T>
+	template<Arithmetic T>
 	T matrix<T>::get_value(std::pair<int, int> cell)
 	{
 		return this->get_value(cell.first, cell.second);
 	}
 
 
-	template<typename T>
+	template<Arithmetic T>
 	void matrix<T>::add_ghost_cells(int grows, int gcols, T value)
 	{
 		T* bak = new T[this->rows_ * (long long) this->cols_]();
@@ -789,7 +814,7 @@ namespace Matrix
 	}
 
 
-	template<typename T>
+	template<Arithmetic T>
 	void matrix<T>::remove_ghost_cells()
 	{
 		T* bak = new T[this->rows_ * (long long)this->cols_]();
@@ -819,7 +844,7 @@ namespace Matrix
 	}
 
 
-	template<typename T>
+	template<Arithmetic T>
 	void matrix<T>::copy_value_into_ghost_cells()
 	{
 
@@ -840,7 +865,7 @@ namespace Matrix
 	}
 
 
-	template<typename T>
+	template<Arithmetic T>
 	void matrix<T>::copy_value_into_ghost_cells_location(std::vector<int> irows, std::vector<int> icols, int ncells, int location)
 	{
 
@@ -900,7 +925,7 @@ namespace Matrix
 	}
 
 
-	template<typename T>
+	template<Arithmetic T>
 	void matrix<T>::set_infinite_walls()
 	{
 		for (int i = 0; i < this->rows_; i++)
@@ -920,14 +945,14 @@ namespace Matrix
 	}
 
 
-	template<typename T>
+	template<Arithmetic T>
 	bool matrix<T>::is_inbounds(int row, int col)
 	{
 		return (row < this->rows_ && row >= 0 && col < this->cols_ && col >= 0);
 	}
 
 
-	template<typename T>
+	template<Arithmetic T>
 	void matrix<T>::zero_fill()
 	{
 		for (int i = 0; i < this->rows_; i++)
@@ -940,7 +965,7 @@ namespace Matrix
 	}
 
 
-	template<typename T>
+	template<Arithmetic T>
 	void matrix<T>::zero_fill_int()
 	{
 		for (int i = 0; i < this->rows_; i++)
@@ -953,7 +978,7 @@ namespace Matrix
 	}
 
 
-	template<typename T>
+	template<Arithmetic T>
 	void matrix<T>::pow(T e)
 	{
 
@@ -967,7 +992,7 @@ namespace Matrix
 	}
 
 
-	template<typename T>
+	template<Arithmetic T>
 	void matrix<T>::square()
 	{
 
@@ -982,282 +1007,7 @@ namespace Matrix
 	}
 
 
-	template<typename T>
-	void matrix<T>::load_from_ascii_file(std::string& filepath)
-	{
-		int j = 0;
-		int rownum = 0;
-		std::tuple<int, int> dims = get_dims_2d(filepath);
-
-		std::ifstream infile(filepath.c_str());
-
-		if (!infile.is_open())
-		{
-			std::cerr << ERROR "Error reading file: " << filepath << std::endl;
-			exit(EXIT_FAILURE);
-		}
-		else
-		{
-			std::cerr << IN "Reading file " << filepath << std::endl;
-		}
-
-		std::string line;
-
-		std::getline(infile, line);
-
-		while (!infile.eof())
-		{
-			std::vector<std::string> row = StringUtils::split(line, ' ');
-
-			if (rownum == 0)
-			{
-				this->rows_ = std::get<1>(dims);
-				this->cols_ = std::get<0>(dims);
-
-				this->set_size(this->rows_, this->cols_);
-				this->zero_fill();
-			}
-			else
-			{
-				std::string val;
-				std::vector<std::string>::iterator strit = row.begin();
-				j = 0;
-
-				for (; strit != row.end(); strit++, j++)
-				{
-					val = *strit;
-
-					if (val.find(".") != std::string::npos)
-					{
-						this->data_[(long long)this->cols_ * (rownum - 1) + j] = atof(val.c_str());
-					}
-					else
-					{
-						this->data_[(long long)this->cols_ * (rownum - 1) + j] = atoi(val.c_str());
-					}
-				}
-			}
-			rownum++;
-			std::getline(infile, line);
-		}
-		infile.close();
-		std::cerr << OK "File " << filepath << " read" << std::endl;		
-	}
-
-
-	template<typename T>
-	void matrix<T>::load_from_ascii_file(int rows, int cols, std::string& filepath)
-	{
-		std::tuple<int, int> dims = get_dims_2d(filepath);
-		if (rows != std::get<1>(dims) || cols != std::get<0>(dims))
-		{
-			std::cerr << "Invalid dimension of " << filepath << ". (row,col): (" << std::get<1>(dims) << "," << std::get<0>(dims) << ")" << std::endl;
-			exit(EXIT_FAILURE);
-		}
-
-		this->set_size(rows, cols);
-
-		int i = 0;
-		int percentage=10;
-
-		std::ifstream infile(filepath);
-
-		if (!infile.is_open())
-		{
-			std::cerr << ERROR "Error reading file: " << filepath << std::endl;
-			exit(EXIT_FAILURE);
-		}
-		else
-		{
-			std::cerr << IN "Reading file " << filepath << std::endl;
-		}
-
-		std::string line;
-
-		while (infile.good())
-		{
-			int j = 0;
-			std::getline(infile, line);
-			std::vector<std::string> row = StringUtils::split(line, ' ');
-			std::string val;
-			std::vector<std::string>::iterator strit = row.begin();
-
-			for (; strit != row.end(); strit++, j++)
-			{
-				if(j>cols-1){
-					std::cerr << std::endl << ERROR "Error reading file: " << filepath << ". More than one space as separator?. Check row " << i+1 << std::endl;
-					exit(EXIT_FAILURE);
-				}
-
-				val = *strit;
-
-				if(val.find(".") != std::string::npos)
-				{
-					this->data_[((long long)this->cols_ * i) + j] = (T)atof(val.c_str());
-				}
-				else
-				{
-					this->data_[((long long)this->cols_ * i) + j] = (T)atoi(val.c_str());
-				}
-			}
-			i++;
-			//this is to show the percentage (by 10%) for large files
-			if((long long)cols*rows>1e7 && (i*100/rows > percentage)){
-				if(percentage==10){
-					std::cerr << "     " ;
-				}
-				std::cerr << percentage << "% ";
-				percentage+=10;
-				if(percentage==100){
-					std::cerr << std::endl;
-				}
-			}
-
-		}
-		infile.close();
-		std::cerr << OK "File " << filepath << " read" << std::endl;
-		
-	}
-
-
-	template<typename T>
-	void matrix<T>::load_from_ascii_file(int rows, int cols, std::string& filepath, int header_size)
-	{
-
-		this->set_size(rows, cols);
-
-		int i = 0;
-		std::ifstream infile(filepath);
-
-		if (!infile.is_open())
-		{
-			std::cerr << ERROR "Error reading file: " << filepath << std::endl;
-			exit(EXIT_FAILURE);
-		}
-		else
-		{
-			std::cerr << IN "Reading file " << filepath << std::endl;
-		}
-
-		std::string line;
-
-		int line_number = 0;
-		int percentage=10;
-		while (infile.good())
-		{
-			std::getline(infile, line);
-
-			line_number++;
-			if (line_number <= header_size)
-			continue;
-
-			int j = 0;
-			std::vector<std::string> row = StringUtils::split(line, ' ');
-			std::string val;
-			std::vector<std::string>::iterator strit = row.begin();
-
-			for (; strit != row.end(); strit++, j++)
-			{
-				if(j>cols-1){
-					std::cerr << std::endl << ERROR "Error reading file: " << filepath << ". More than one space as separator?. Check row " << i+1 << std::endl;
-					exit(EXIT_FAILURE);
-				}
-
-				val = *strit;
-
-				if(val.find(".") != std::string::npos)
-				{
-					this->data_[((long long)this->cols_ * i) + j] = (T)atof(val.c_str());
-				}
-				else
-				{
-					this->data_[((long long)this->cols_ * i) + j] = (T)atoi(val.c_str());
-				}
-			}
-			i++;
-			//this is to show the percentage (by 10%) for large files
-			if((long long)cols*rows>1e7 && (i*100/rows > percentage)){
-				if(percentage==10){
-					std::cerr << "     " ;
-				}
-				std::cerr << percentage << "% ";
-				percentage+=10;
-				if(percentage==100){
-					std::cerr << std::endl;
-				}
-			}
-		}
-		infile.close();
-		std::cerr << OK "File " << filepath << " read" << std::endl;
-		
-	}
-
-
-	template<typename T>
-	void matrix<T>::load_from_binary_file(int rows, int cols, std::string& filepath)
-	{
-		this->set_size(rows, cols);
-		std::ifstream infile(filepath, std::ios::binary);
-
-		if (!infile.is_open())
-		{
-			std::cerr << ERROR "Error reading file: " << filepath << std::endl;
-			exit(EXIT_FAILURE);
-		}
-		else
-		{
-			std::cerr << IN "Reading file " << filepath << std::endl;
-		}
-		
-		T *arr = new T [BIN_DEFAULT_HEADER_SIZE];
-		infile.read( (char*) arr, sizeof(T) * BIN_DEFAULT_HEADER_SIZE );
-		int file_row = (int)arr[BIN_ROW_ID];
-		int file_col = (int)arr[BIN_COL_ID];
-		
-		if(rows!= file_row || cols!=file_col)
-		{
-			infile.close();
-			std::cerr << ERROR "Invalid Matrix dimensions" << std::endl;
-			exit(EXIT_FAILURE);
-
-		}
-
-		infile.seekg(sizeof(T) * BIN_DEFAULT_HEADER_SIZE, std::ios::beg);
-		infile.read((char*)this->data_, sizeof(T) * rows * (long long)cols);
-
-		infile.close();
-		std::cerr << OK "File " << filepath << " read" << std::endl;
-		
-	}
-
-
-	template<typename T>
-	void matrix<T>::load_from_binary_file(int rows, int cols, std::string& filepath, int header_size)
-	{
-
-		this->set_size(rows, cols);
-		std::ifstream infile(filepath, std::ios::binary);
-
-		if (!infile.is_open())
-		{
-			std::cerr << ERROR "Error reading file: " << filepath << std::endl;
-			exit(EXIT_FAILURE);
-		}
-		else
-		{
-			std::cerr << IN "Reading file " << filepath << std::endl;
-		}
-
-		infile.seekg(sizeof(T) * header_size, std::ios::beg);
-		infile.read((char*)this->data_, sizeof(T) * rows * (long long)cols);
-
-		infile.close();
-		std::cerr << OK "File " << filepath << " read" << std::endl;
-
-	}
-
-
-	template<typename T>
+	template<Arithmetic T>
 	std::pair<int, int> matrix<T>::get_dims_2d(std::string& filepath)
 	{
 		int num_cols = 0, num_rows = 0;
@@ -1288,5 +1038,7 @@ namespace Matrix
 		return std::pair<int, int>(num_cols, num_rows);
 	}
 }
+
+#include "matrix_io.h"
 
 #endif

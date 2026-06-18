@@ -19,10 +19,12 @@
 #ifndef EXTBC_H
 #define EXTBC_H
 
+#include <concepts>
+#include <cstdlib>
 
 namespace ExtBC
 {
-	template<class T>
+	template<std::floating_point T>
 	class extBC	/**< To process and store data related to external boundary condition. */
 	{
 	public:
@@ -127,14 +129,14 @@ namespace ExtBC
 	};
 
 
-	template<class T>
+	template<std::floating_point T>
 	extBC<T>::extBC()
 	{
 		set_num_rows(0);
 	}
 
 
-	template<class T>
+	template<std::floating_point T>
 	extBC<T>::extBC(std::string filename, int bctype)
 	{
 		if(bctype==1){
@@ -152,26 +154,26 @@ namespace ExtBC
 	}
 
 
-	template<typename T>
+	template<std::floating_point T>
 	int extBC<T>::get_num_rows()
 	{
 		return num_rows_;
 	}
 
 
-	template<typename T>
+	template<std::floating_point T>
 	void extBC<T>::set_num_rows(int rows)
 	{
 		num_rows_ = rows;
 	}
 
 
-	template<typename T>
+	template<std::floating_point T>
 	void extBC<T>::load_from_file(std::string filename, int bctype)
 	{
 		std::ifstream ifs(filename.c_str());
 
-		if (!ifs.good())
+		if (!ifs.good()) [[unlikely]]
 		{
 			std::cerr << ERROR "Error reading file: " << filename << std::endl;
 			exit(EXIT_FAILURE);
@@ -201,7 +203,7 @@ namespace ExtBC
 	}
 
 
-	template<typename T>
+	template<std::floating_point T>
 	int extBC<T>::check_extreme_extbc(std::vector<int> e_cols, std::vector<int> e_rows, int ncols, int nrows)
 	{
 
@@ -231,15 +233,15 @@ namespace ExtBC
 			exit(EXIT_FAILURE);
 		}else{
 			if(e_cols[0]==e_cols[1]){
-				return fabs(e_rows[0]-e_rows[1])+1;
+				return std::abs(e_rows[0]-e_rows[1])+1;
 			}else{
-				return fabs(e_cols[0]-e_cols[1])+1;
+				return std::abs(e_cols[0]-e_cols[1])+1;
 			}
 		}
 	}
 
 
-	template<typename T>
+	template<std::floating_point T>
 	void extBC<T>::create_involved_cells(std::vector<int> e_cols, std::vector<int> e_rows, int ncols, int nrows, int bctype)
 	{
 		i_cols.assign(ncells,-1);	
@@ -292,17 +294,17 @@ namespace ExtBC
 	}
 
 
-	template<typename T>
+	template<std::floating_point T>
 	std::vector<std::vector<T>> extBC<T>::get_rows()
 	{
 		return data_;
 	}
 
 	
-	template<typename T>
+	template<std::floating_point T>
 	T extBC<T>::get_var1_at(int index)
 	{
-		if (index >= static_cast<int>(data_.size()))
+		if (index >= static_cast<int>(data_.size())) [[unlikely]]
 		{
 			std::cerr << ERROR "Extbc index out of bounds" << std::endl;
 			exit(EXIT_FAILURE);
@@ -312,10 +314,10 @@ namespace ExtBC
 	}
 
 
-	template<typename T>
+	template<std::floating_point T>
 	T extBC<T>::get_var2_at(int index)
 	{
-		if (index >= static_cast<int>(data_.size()))
+		if (index >= static_cast<int>(data_.size())) [[unlikely]]
 		{
 			std::cerr << ERROR "Extbc index out of bounds" << std::endl;
 			exit(EXIT_FAILURE);
@@ -326,7 +328,7 @@ namespace ExtBC
 	}
 
 
-	template<typename T>
+	template<std::floating_point T>
 	void extBC<T>::convert_to_secs()
 	{
 		typename std::vector<std::vector<T>>::iterator it = data_.begin();

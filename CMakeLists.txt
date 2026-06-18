@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16 FATAL_ERROR) # minimum CMake version to support Kokkos
+cmake_minimum_required(VERSION 3.20 FATAL_ERROR) # minimum CMake for reliable cxx_std_20 + Kokkos
 
 set(TRITON_EXECUTABLE "triton.exe")
 
@@ -11,7 +11,7 @@ include(cmake/machine.cmake)
 set_environment()
 
 project(triton CXX)
-set(CMAKE_CXX_STANDARD 17) # minimum C++ standard to support Kokkos
+set(CMAKE_CXX_STANDARD 20) # C++20 baseline; Kokkos 4.5+ supports it
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 

@@ -20,10 +20,11 @@
 #define INFLOW_H
 
 #include "string_utils.h"
+#include <concepts>
 
 namespace Hydrograph
 {
-	template<class T>
+	template<std::floating_point T>
 	class hydrograph	/**< To process and store hydrograph input files. */
 	{
 	public:
@@ -125,7 +126,7 @@ namespace Hydrograph
 	};
 
 
-	template<class T>
+	template<std::floating_point T>
 	hydrograph<T>::hydrograph()
 	{
 		time_is_hours_ = true;
@@ -133,7 +134,7 @@ namespace Hydrograph
 	}
 
 
-	template<class T>
+	template<std::floating_point T>
 	hydrograph<T>::hydrograph(std::string filename)
 	{
 		time_is_hours_ = true;
@@ -143,39 +144,39 @@ namespace Hydrograph
 	}
 
 
-	template<typename T>
+	template<std::floating_point T>
 	int hydrograph<T>::get_num_inflow_rows()
 	{
 		return flow_rows_;
 	}
 
 
-	template<typename T>
+	template<std::floating_point T>
 	int hydrograph<T>::get_num_inflows()
 	{
 		return num_sources_;
 	}
 
 
-	template<typename T>
+	template<std::floating_point T>
 	void hydrograph<T>::set_num_flow_rows(int rows)
 	{
 		flow_rows_ = rows;
 	}
 
 
-	template<typename T>
+	template<std::floating_point T>
 	void hydrograph<T>::set_num_sources(int sources)
 	{
 		num_sources_ = sources;
 	}
 
 
-	template<typename T>
+	template<std::floating_point T>
 	void hydrograph<T>::load_from_file(std::string filename)
 	{
 		std::ifstream ifs(filename.c_str());
-		if (!ifs.good())
+		if (!ifs.good()) [[unlikely]]
 		{
 			std::cerr << ERROR "Error reading file: " << filename << std::endl;
 			exit(EXIT_FAILURE);
@@ -218,14 +219,14 @@ namespace Hydrograph
 	}
 
 
-	template<typename T>
+	template<std::floating_point T>
 	std::vector<std::vector<T>> hydrograph<T>::get_rows()
 	{
 		return data_;
 	}
 
 
-	template<typename T>
+	template<std::floating_point T>
 	T hydrograph<T>::get_time_at(int index)
 	{
 		if (index >= static_cast<int>(data_.size()))
@@ -238,7 +239,7 @@ namespace Hydrograph
 	}
 
 
-	template<typename T>
+	template<std::floating_point T>
 	T hydrograph<T>::get_flow_at(int index, int source_num)
 	{
 		if (index >= static_cast<int>(data_.size()))
@@ -252,7 +253,7 @@ namespace Hydrograph
 	}
 
 
-	template<typename T>
+	template<std::floating_point T>
 	void hydrograph<T>::convert_time_hr_to_secs()
 	{
 		if (time_is_hours_)
@@ -269,7 +270,7 @@ namespace Hydrograph
 	}
 
 
-	template<typename T>
+	template<std::floating_point T>
 	void hydrograph<T>::convert_rate_hr_to_secs()
 	{
 		for (int i = 0; i < get_num_inflows(); ++i)
@@ -283,7 +284,7 @@ namespace Hydrograph
 	}
 
 
-	template<typename T>
+	template<std::floating_point T>
 	void hydrograph<T>::convert_rate_mm_to_m()
 	{
 		for (int i = 0; i < get_num_inflows(); ++i)

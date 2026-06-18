@@ -1,21 +1,10 @@
 #!/bin/bash
 
 module purge
-module load craype-network-ofi
-module load Core
-module load DefApps
-module load nvidia
-module load craype
-module load cray-mpich
-module load PrgEnv-nvidia
+module load PrgEnv-cray
 module load cudatoolkit
-module load cray-libsci
 module load craype-accel-nvidia80
 
-# Supports multi-node simulations
-module load craype-network-ucx
-module load cray-mpich-ucx
-module load ucx/1.20.0
 export MPICH_GPU_SUPPORT_ENABLED=1
 export UCX_TLS=rc,sm,self,cuda,cuda_copy,cuda_ipc
 
