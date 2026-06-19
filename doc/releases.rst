@@ -29,7 +29,7 @@ Version numbers
 ---------------
 
 Releases are numbered ``MAJOR.MINOR.PATCH`` and the tag is the bare version --
-``2.1.0``, not ``v2.1.0``. Tags are identical on both sides, so a
+``2.1.1``, not ``v2.1.1``. Tags are identical on both sides, so a
 version named in a paper, a log file, or a support request identifies exactly
 one tree.
 
@@ -59,11 +59,11 @@ Downloading and verifying a release:
 
 .. code-block:: bash
 
-    curl -LO https://github.com/triton-hydro/triton/releases/download/2.1.0/triton-2.1.0.tar.gz
-    curl -LO https://github.com/triton-hydro/triton/releases/download/2.1.0/triton-2.1.0.tar.gz.sha256
-    sha256sum -c triton-2.1.0.tar.gz.sha256
-    tar xzf triton-2.1.0.tar.gz
-    cd triton-2.1.0
+    curl -LO https://github.com/triton-hydro/triton/releases/download/2.1.1/triton-2.1.1.tar.gz
+    curl -LO https://github.com/triton-hydro/triton/releases/download/2.1.1/triton-2.1.1.tar.gz.sha256
+    sha256sum -c triton-2.1.1.tar.gz.sha256
+    tar xzf triton-2.1.1.tar.gz
+    cd triton-2.1.1
 
 The checksum is published with the release and is re-checked against the
 uploaded asset after every publication, so a mismatch means the file was
@@ -78,7 +78,7 @@ Cloning the release repository works, provided the submodules come with it:
 
     git clone --recursive https://github.com/triton-hydro/triton.git
     cd triton
-    git checkout 2.1.0
+    git checkout 2.1.1
 
 If the clone was made without ``--recursive``:
 

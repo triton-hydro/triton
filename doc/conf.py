@@ -10,7 +10,7 @@ sys.path.insert(0, os.path.abspath('..')) # Go up one level from 'doc' to 'trito
 project = 'TRITON Documentation'
 copyright = f'{datetime.datetime.now().year}, T.B.D.'
 author = 'T.B.D.'
-release = '2.1.0'
+release = '2.1.1'
 version = '2.1'
 
 # --- General configuration ---

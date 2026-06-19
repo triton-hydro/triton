@@ -1,1 +1,1 @@
-cray_OPENMP.sh
+cray_CUDA.sh

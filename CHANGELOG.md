@@ -11,6 +11,18 @@ on the [Releases page](https://github.com/triton-hydro/triton/releases).
 The upstream development history, and the per-commit authorship
 that goes with it, is at <https://code.ornl.gov/hydro/triton>.
 
+## TRITON 2.1.1
+
+### Changes
+
+- Fix a bug that prevented support for multiple nodes on Miller.
+
+---
+
+Published from upstream tag `2.1.1` (`d18ed5b`) of https://code.ornl.gov/hydro/triton.
+Development history, per-commit authorship, and the issue tracker stay
+in the upstream repository.
+
 ## TRITON 2.1.0
 
 ### Changes

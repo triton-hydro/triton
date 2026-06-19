@@ -5,6 +5,15 @@ module load PrgEnv-cray
 module load cudatoolkit
 module load craype-accel-nvidia80
 
+# Supports multi-node simulations
+module load craype-network-ucx
+module load cray-mpich-ucx
+module load ucx/1.20.0
+
+export CC=cc
+export CXX=CC
+export FC=ftn
+
 export MPICH_GPU_SUPPORT_ENABLED=1
 export UCX_TLS=rc,sm,self,cuda,cuda_copy,cuda_ipc
 
