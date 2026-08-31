@@ -5,7 +5,7 @@
 
 Release notes for every version of TRITON published to
 [triton-hydro/triton](https://github.com/triton-hydro/triton), newest first.
-Each section is the description attached to that version's entry
+Each section corresponds to that version's entry
 on the [Releases page](https://github.com/triton-hydro/triton/releases).
 
 The upstream development history, and the per-commit authorship
@@ -20,8 +20,8 @@ that goes with it, is at <https://code.ornl.gov/hydro/triton>.
 ---
 
 Published from upstream tag `2.1.1` (`d18ed5b`) of https://code.ornl.gov/hydro/triton.
-Development history, per-commit authorship, and the issue tracker stay
-in the upstream repository.
+Development history, per-commit authorship, and the development issue
+tracker stay in the upstream repository.
 
 ## TRITON 2.1.0
 
@@ -51,8 +51,8 @@ in the upstream repository.
 ---
 
 Published from upstream tag `2.1.0` (`1790101`) of https://code.ornl.gov/hydro/triton.
-Development history, per-commit authorship, and the issue tracker stay
-in the upstream repository.
+Development history, per-commit authorship, and the development issue
+tracker stay in the upstream repository.
 
 ## TRITON 2.0.0
 
@@ -67,5 +67,5 @@ in the upstream repository.
 ---
 
 Published from upstream tag `2.0.0` (`ec35bc4`) of https://code.ornl.gov/hydro/triton.
-Development history, per-commit authorship, and the issue tracker stay
-in the upstream repository.
+Development history, per-commit authorship, and the development issue
+tracker stay in the upstream repository.
